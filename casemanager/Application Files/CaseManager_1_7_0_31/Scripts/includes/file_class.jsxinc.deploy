@@ -1,0 +1,13 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 12 de marzo de 2018
+//*********************************************************************************
+"use strict";
+
+/**
+ * Elimina la extensión de un archivo
+ * @returns {string} Devuelve el nuevo nombre de archivo sin la extensión
+ */
+File.prototype.removeExtension = function() {
+    return (this.name.substring(0, this.name.lastIndexOf(".")));
+}
