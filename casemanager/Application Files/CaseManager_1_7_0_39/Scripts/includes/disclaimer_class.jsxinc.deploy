@@ -1,0 +1,104 @@
+//*********************************************************************************
+// Creado por JORDI DE PABLOS para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 25 de octubre de 2024
+//*********************************************************************************
+
+"use strict";
+
+// Anclaje para la posición del Disclaimer
+var anchor = {
+    LOWER_RIGHT: 0,
+    UPPER_LEFT: 1
+};
+
+/**
+ * Desplaza el disclaimer a una posición en concreto y lo incrusta en el documento
+ * @param {anchor} anc     Enumeración con el anclaje donde posicionará el disclaimer
+ * @param {number} hOffset Distancia horizontal desde el borde de la página
+ * @param {number} vOffset Distancia vertical desde el borde de la página
+ * @param {object} that    El objeto global this con los miembros de la clase
+ */
+function embedDisclaimer(anc, hOffset, vOffset, that) {
+    if (that.disclaimer == null) return;
+
+    switch (anc) {
+        case anchor.LOWER_RIGHT:
+            that.disclaimer.left = that.doc.docRef.artboards[0].artboardRect[2] - that.disclaimer.width - hOffset;
+            that.disclaimer.top = that.doc.docRef.artboards[0].artboardRect[3] + that.disclaimer.height + vOffset;
+            break;
+        case anchor.UPPER_LEFT:
+            that.disclaimer.left = that.doc.docRef.artboards[0].artboardRect[0] + hOffset;
+            that.disclaimer.top = that.doc.docRef.artboards[0].artboardRect[1] - vOffset;
+            break;
+        default:
+    }
+
+    that.disclaimer.embed();
+}
+
+/**
+ * Clase para añadir el disclaimer a un documento
+ * @param {string} productCode           El código del producto
+ * @param {object} document              Un objeto de tipo IllustratorDocument
+ * @param {string} disclaimerPath        La ruta donde se encuentran los disclaimers de los productos
+ */
+function Disclaimer(productCode, language, document, gDesigner) {
+    this.productCode = productCode;
+    this.language = language;
+    this.defaultLanguage = "English";
+    this.doc = document;
+    this.layerName = "DISCLAIMER";
+    this.gDesigner = gDesigner;
+    // Objeto PlaceItem que contendrá el disclaimer
+    this.disclaimer = null;
+}
+
+/**
+ * Elimina el disclaimer del documento
+ * @param {object} doc Un objeto de tipo IllustratorDocument
+ */
+Disclaimer.removeDisclaimer = function (doc) {
+    try {
+        // Localizamos la capa del disclaimer
+        var disclaimerLayer = doc.docRef.layers["OTHER"].layers["DISCLAIMER"];
+        disclaimerLayer.remove();
+    } catch (err) {
+        // Si no existe la capa, no hacemos nada
+    }
+};
+
+/**
+ * Añade el disclaimer si corresponde
+ * @param {string} productCode Código del producto
+ */
+Disclaimer.prototype.addDisclaimer = function () {
+    var disclaimerFile = new File(this.gDesigner.disclaimersPath + "\\" + this.productCode + "-" + this.language + ".pdf");
+    
+    // Si no existe archivo con disclaimer para el código de producto, finalizamos la función
+    if (!disclaimerFile.exists)
+        disclaimerFile = new File(this.gDesigner.disclaimersPath + "\\" + this.productCode + "-" + this.defaultLanguage + ".pdf");
+    if (!disclaimerFile.exists)
+        disclaimerFile = new File(this.gDesigner.disclaimersPath + "\\" + this.productCode + "-" + this.language + ".ai");
+    if (!disclaimerFile.exists)
+        disclaimerFile = new File(this.gDesigner.disclaimersPath + "\\" + this.productCode + "-" + this.defaultLanguage + ".ai");
+    if (!disclaimerFile.exists)
+        return;
+    
+    disclaimerFile.name = "disclaimer-" + this.productCode;
+    try {
+        // Localizamos la capa donde colocar el disclaimer
+        var disclaimerLayer = this.doc.docRef.layers["OTHER"].layers[this.layerName];
+    } catch (err) {
+        // Si no existe la capa, la creamos
+        disclaimerLayer = this.doc.docRef.layers["OTHER"].layers.add();
+        disclaimerLayer.name = this.layerName;
+    }
+    
+    // Añadimos el disclaimer a la capa del documento
+    this.disclaimer = this.doc.docRef.layers["OTHER"].layers[this.layerName].placedItems.add();
+    this.disclaimer.file = disclaimerFile;
+    
+    // Desplazamos el disclaimer a una posición determinada, lo movemos a una capa y lo incrustamos en el documento
+    embedDisclaimer(anchor.UPPER_LEFT, 0, 0, this);
+    // embedDisclaimer(anchor.UPPER_LEFT, -81.1902, 34.4665, this);
+};

@@ -1,0 +1,74 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 7 de febrero de 2019
+//*********************************************************************************
+
+#include "jsonreader_class.jsxinc"
+#include "exception_class.jsxinc"
+
+"use strict";
+
+/**
+ * Clase con información sobre el diseñador gráfico
+ * @throws {userException} Muestra un mensaje de error cuando el usuario de Windows no está registrado en el archivo de usuarios
+ */
+function GraphicDesigner() {
+    // Usuario de Windows
+    this.userName = null;
+    // Nombre del diseñador
+    this.name = null;
+    // Nombre corto que se usará en los pedidos
+    this.shortName = null;
+    // Idioma del diseñador para mostrar los mensajes en Illustrator
+    this.language = null;
+    // Tipo: internal o external
+    this.type = null;
+    // Carpeta donde están guardados los registros de los productos
+    this.productTemplatesPath = null;
+    // Carpeta donde están guardados los archivos con los logos de los distribuidores
+    this.customerLogosPath = null;
+    // Carpeta donde están los scripts
+    this.scriptsPath = null;
+}
+
+/**
+ * Obtiene el nombre de usuario de Windows
+ */
+GraphicDesigner.prototype.getUserName = function () {
+    this.userName = $.getenv("username").toLowerCase();
+};
+
+/**
+ * Obtiene la información sobre el diseñador actual según el usuario de Windows
+ * @throws {userException} Lanza una excepción cuando el usuario actual no está registrado
+ */
+GraphicDesigner.prototype.getCurrentGraphicDesigner = function () {
+    // Objeto File con la ruta completa al archivo JSON con la información de los diseñadores gráficos
+    var graphicDesignersFile = new File("C:\\CaseManager\\Scripts\\includes\\Users.json");
+    
+    if (!graphicDesignersFile.exists){
+        throw new CustomException("No se ha localizado el archivo JSON con información sobre los diseñadores", "Unable to find the JSON file with information from graphic designers");
+    }
+    
+    // Contenido con la información de los usuarios
+    var contents = new JSONReader().getJson(graphicDesignersFile);
+
+    this.getUserName();
+
+    if (contents != "" || contents != undefined) {
+        for (var i = 0; i < contents.graphic_designers.length; i++) {
+            if (contents.graphic_designers[i].username == this.userName) {
+                this.name = contents.graphic_designers[i].name;
+                this.shortName = contents.graphic_designers[i].short_name;
+                this.language = contents.graphic_designers[i].language;
+                this.type = contents.graphic_designers[i].type;
+                this.productTemplatesPath = contents.graphic_designers[i].product_templates_path;
+                this.customerLogosPath = contents.graphic_designers[i].customer_logos_path;
+                this.scriptsPath = contents.graphic_designers[i].scripts_path;
+                return;
+            }
+        }
+    }
+
+    throw new CustomException("No se ha encontrado información sobre el diseñador '" + this.userName + "'", "Unable to find information about the current graphic designer '" + this.userName + "'");
+};

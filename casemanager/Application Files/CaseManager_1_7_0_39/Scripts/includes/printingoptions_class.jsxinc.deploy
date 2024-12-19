@@ -1,0 +1,106 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 20 de diciembre de 2018
+//*********************************************************************************
+#include "illustratordocument_class.jsxinc"
+"use strict";
+
+/**
+ * Clase con la referencia a las opciones de impresión
+ * @param {IllustratorDocument} illDoc El documento Illustrator
+ */
+function PrintingOptions(illDoc) {
+    this.illDoc = illDoc;
+    // Información sobre las fuentes usadas en el documento
+    this.printFontOpt = new PrintFontOptions();
+    // Información sobre la separación de colores
+    this.printColorSeparationOpt = new PrintColorSeparationOptions();
+    // Información sobre el tamaño del papel
+    this.printPaperOpt = new PrintPaperOptions();
+    // Información sobre el papel y parámetros asociados
+    this.printCoordinateOpt = new PrintCoordinateOptions();
+    // Información sobre como se debe imprimir el documento
+    this.printJobOpt = new PrintJobOptions();
+    // Información sobre todas las opciones de impresión completas
+    this.printOpt = new PrintOptions();
+    // Información sobre las marcas de impresión
+    this.printPageMarksOpt = new PrintPageMarksOptions();
+    // Contains flattening options for use when Illustrator outputs artwork that contains transparency into a non-native format.
+    this.printFlattenerOpt = new PrintFlattenerOptions();
+    // Options for printing to a PostScript printer.
+    this.printPostScriptOpt = new PrintPostScriptOptions();
+    // Lista de las tintas imprimibles del documento
+    this.listInks = illDoc.docRef.inkList;
+}
+
+/**
+ * Activa la tinta actual, desabilitando el resto
+ * @param {InkObject} ink Una tinta de impresión
+ */
+PrintingOptions.prototype.enableInk = function(ink) {
+    var i;
+    
+    for (i = 0; i < this.listInks.length; i++){
+        if (this.listInks[i].name == ink.name){
+            this.listInks[i].inkInfo.printingStatus = InkPrintStatus.ENABLEINK;
+        } else{
+            this.listInks[i].inkInfo.printingStatus = InkPrintStatus.DISABLEINK;
+        }
+    }
+    
+    this.printColorSeparationOpt.inkList = this.listInks;
+};
+
+/**
+ * Imprime el documento en un archivo
+ */
+PrintingOptions.prototype.printFile = function(){
+    // Definimos todas las propiedades de impresión
+    this.definePrintingOptions();
+    
+    // Imprimimos la separación de colores
+    this.illDoc.docRef.print(this.printOpt);
+};
+
+/**
+ * Define todas las propiedades de impresión
+ */
+PrintingOptions.prototype.definePrintingOptions = function() {
+    // Print Page Marks Options
+    this.printPageMarksOpt.pageInfoMarks = false;
+    
+    // Print Font Options
+    this.printFontOpt.downloadFonts = PrintFontDownloadMode.DOWNLOADCOMPLETE;
+
+    // Print Color Separation Options
+    this.printColorSeparationOpt.colorSeparationMode = PrintColorSeparationMode.HOSTBASEDSEPARATION;
+    this.printColorSeparationOpt.overPrintBlack = false;
+
+    // Print Coordinate Options
+    this.printCoordinateOpt.orientation = PrintOrientation.PORTRAIT;
+
+    // Print Job Options
+    this.printJobOpt.printArea = PrintingBounds.ARTBOARDBOUNDS;
+    this.printJobOpt.reversePages = true;
+
+    // Print Flattener Options
+    this.printFlattenerOpt.convertTextToOutlines = true;
+    
+    // Print PostScript Options
+    this.printPostScriptOpt.postScriptLevel = PrinterPostScriptLevelEnum.PSLEVEL3;
+    
+    // Print Paper Options
+    this.printPaperOpt.name = "A2";
+
+    // Print Options
+    this.printOpt.PPDName = "Adobe PDF";
+    this.printOpt.printerName = "Adobe PDF";
+    this.printOpt.fontOptions = this.printFontOpt;
+    this.printOpt.coordinateOptions = this.printCoordinateOpt;
+    this.printOpt.pageMarksOptions = this.printPageMarksOpt;
+    this.printOpt.jobOptions = this.printJobOpt;
+    this.printOpt.colorSeparationOptions = this.printColorSeparationOpt;
+    this.printOpt.flattenerOptions = this.printFlattenerOpt;
+    this.printOpt.postScriptOptions = this.printPostScriptOpt;
+    this.printOpt.paperOptions = this.printPaperOpt;
+};

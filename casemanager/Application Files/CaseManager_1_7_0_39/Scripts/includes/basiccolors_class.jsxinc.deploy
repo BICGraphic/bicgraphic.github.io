@@ -1,0 +1,72 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 28 de febrero de 2018
+//*********************************************************************************
+"use strict";
+
+/**
+ * Clase para crear objetos de tipo CMYKColor con un color determinado
+ */
+function BasicColor() {
+
+}
+
+/**
+ * Clase estática para crear un color negro
+ * @returns {CMYKColor} El color creado
+ */
+BasicColor.black = function () {
+    var blackColor = new CMYKColor();
+    blackColor.cyan = 0.0;
+    blackColor.magenta = 0.0;
+    blackColor.yellow = 0.0;
+    blackColor.black = 100.0;
+
+    return (blackColor);
+}
+
+/**
+ * Clase estática para crear un color blanco
+ * @returns {CMYKColor} El color creado
+ */
+BasicColor.white = function () {
+    var whiteColor = new CMYKColor();
+    whiteColor.cyan = 0.0;
+    whiteColor.magenta = 0.0;
+    whiteColor.yellow = 0.0;
+    whiteColor.black = 0.0;
+
+    return (whiteColor);
+}
+
+/**
+ * Clase estática para crear un color rojo
+ * @returns {CMYKColor} El color creado
+ */
+BasicColor.red = function () {
+    var redColor = new CMYKColor();
+    redColor.cyan = 0.0;
+    redColor.magenta = 100.0;
+    redColor.yellow = 100.0;
+    redColor.black = 0.0;
+
+    return (redColor);
+}
+
+/**
+ * Función para crear un color CMYK personalizado
+ * @param   {number}    cyanValue    El valor para el color cyan
+ * @param   {number}    magentaValue El valor para el color magenta
+ * @param   {number}    yellowValue  El valor para el color yellow
+ * @param   {number}    blackValue   El valor para el color negro
+ * @returns {CMYKColor} El color creado
+ */
+BasicColor.prototype.createNewColor = function (cyanValue, magentaValue, yellowValue, blackValue) {
+    var newColor = new CMYKColor();
+    newColor.cyan = cyanValue;
+    newColor.magenta = magentaValue;
+    newColor.yellow = yellowValue;
+    newColor.black = blackValue;
+
+    return (newColor);
+};

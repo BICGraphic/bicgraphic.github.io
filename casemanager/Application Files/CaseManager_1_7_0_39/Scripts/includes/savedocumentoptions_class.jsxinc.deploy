@@ -1,0 +1,98 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 13 de marzo de 2020
+//*********************************************************************************
+"use strict";
+
+/**
+ * Clase para establecer opciones de guardado en varios formatos
+ */
+function SaveDocumentOptions() {
+
+}
+
+/**
+ * Establece las opciones de guardado de archivos PDF
+ * @param   {boolean}        includeProfileColour Incluir perfil de color
+ * @returns {PDFSaveOptions} El objeto con las opciones de PDF
+ */
+SaveDocumentOptions.prototype.pdfOptions = function (includeProfileColour) {
+    var options = new PDFSaveOptions();
+
+    options.compatibility = PDFCompatibility.ACROBAT8;
+    options.colorCompression = CompressionQuality.ZIP8BIT;
+    options.grayscaleCompression = CompressionQuality.ZIP8BIT;
+    options.monochromeCompression = MonochromeCompression.MONOZIP;
+    options.compressArt = true;
+    options.generateThumbnails = true;
+    options.optimization = true;
+    options.preserveEditability = true;
+    options.bleedLink = false;
+    options.colorProfileID = includeProfileColour ? ColorProfile.INCLUDEALLPROFILE : ColorProfile.None;
+
+    return options;
+};
+
+/**
+ * Establece las opciones de guardado de archivos PDF con Standard
+ * @returns {PDFSaveOptions} El objeto con las opciones de PDF
+ */
+SaveDocumentOptions.prototype.pdfStandardOptions = function () {
+    var options = new PDFSaveOptions();
+
+    options.preserveEditability = false;
+    options.colorProfileID = ColorProfile.INCLUDEALLPROFILE;
+    options.colorDestinationID = ColorDestination.COLORDESTINATIONDOCCMYK;
+    options.pDFXStandard = PDFXStandard.PDFX42007;
+
+    return options;
+};
+
+/**
+ * Establece las opciones de guardado de archivo PDF para entrada de PitStop
+ * @returns {PDFSaveOptions} El objeto con las opciones de PDF
+ */
+SaveDocumentOptions.prototype.pdfPitStopOptions = function () {
+    var options = new PDFSaveOptions();
+
+    options.compatibility = PDFCompatibility.ACROBAT8;
+    options.colorCompression = CompressionQuality.ZIP8BIT;
+    options.grayscaleCompression = CompressionQuality.ZIP8BIT;
+    options.monochromeCompression = MonochromeCompression.MONOZIP;
+    options.compressArt = true;
+    options.generateThumbnails = false;
+    options.optimization = false;
+    options.preserveEditability = false;
+    options.bleedLink = false;
+    options.colorProfileID = ColorProfile.None;
+
+    return options;
+};
+
+/**
+ * Establece las opciones de guardado de archivos para laser
+ * @returns {IllustratorSaveOptions} El objeto con las opciones para laser
+ */
+SaveDocumentOptions.prototype.laserEngravingOptions = function () {
+    var options = new IllustratorSaveOptions();
+
+    options.compatibility = Compatibility.ILLUSTRATOR8;
+    options.compressed = false;
+
+    return options;
+};
+
+/**
+ * Establece las opciones de guardado de archivos para Illustrator
+ * @returns {IllustratorSaveOptions} El objeto con las opciones de guardado
+ */
+SaveDocumentOptions.prototype.aiIllustratorOptions = function () {
+    var options = new IllustratorSaveOptions();
+
+    options.compressed = true;
+    options.embedICCProfile = true;
+    //options.compatibility = Compatibility.ILLUSTRATOR19;
+    options.pdfCompatible = true;
+
+    return options;
+};

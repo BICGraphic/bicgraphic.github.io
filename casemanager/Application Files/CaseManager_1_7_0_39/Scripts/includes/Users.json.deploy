@@ -1,0 +1,290 @@
+{
+  "graphic_designers": [
+    {
+      "username": "jpablos",
+      "name": "Jordi",
+      "shortName": "JDP",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": true
+    },
+    {
+      "username": "aisuar_prod",
+      "name": "Albert",
+      "shortName": "ALB",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": true
+    },
+    {
+      "username": "aisuar",
+      "name": "Albert",
+      "shortName": "ALB",
+      "language": "spanish",
+      "type": "internal",
+      "productTemplatesPath": "C:\\Users\\aisuar\\OneDrive - BIC\\PROYECTOS\\MACAONE PROJECT\\Customer layout\\Registros",
+      "customerLogosPath": "C:\\Users\\aisuar\\OneDrive - BIC\\PROYECTOS\\MACAONE PROJECT\\Customer layout\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": true
+    },
+    {
+      "username": "lriera",
+      "name": "Lourdes",
+      "shortName": "LOU",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": true
+    },
+    {
+      "username": "jroyo",
+      "name": "Javi",
+      "shortName": "JR",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "rlamas",
+      "name": "Rebeca Lamas",
+      "shortName": "BECKA",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "rmorillo",
+      "name": "Rebeca",
+      "shortName": "RBK",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "alozanogar",
+      "name": "Alba",
+      "shortName": "ALBA",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "mboronat",
+      "name": "Mercè",
+      "shortName": "ME",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "sbru",
+      "name": "Sílvia",
+      "shortName": "SB",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "srodrigu",
+      "name": "Santi",
+      "shortName": "SRR",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "ngieze2",
+      "name": "Nathalie",
+      "shortName": "NG",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "alozanogar",
+      "name": "Alba",
+      "shortName": "ALBA",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "anmartin",
+      "name": "Angel",
+      "shortName": "ANGEL",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "acondon",
+      "name": "Almudena",
+      "shortName": "AC",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": true
+    },
+    {
+      "username": "Horacio",
+      "name": "Horacio",
+      "shortName": "FREE1",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "bruno",
+      "name": "Bruno",
+      "shortName": "FREE1",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "bruno mayol",
+      "name": "Bruno",
+      "shortName": "FREE1",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "florencia",
+      "name": "Florencia",
+      "shortName": "FREE1",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "usuario",
+      "name": "Fidel",
+      "shortName": "FREE2",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "kkoukounak",
+      "name": "Katerina",
+      "shortName": "KK",
+      "language": "english",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "gemma",
+      "name": "Gemma",
+      "shortName": "Bigorra",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "pacog",
+      "name": "Pablo Gimenez",
+      "shortName": "FREE3",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "miguel angel fernandez soler",
+      "name": "Miguel Angel Fernandez",
+      "shortName": "FREE4",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "MToledano",
+      "name": "Marcos Toledano",
+      "shortName": "FREEMT",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    },
+    {
+      "username": "maria",
+      "name": "Maria Madruga",
+      "shortName": "FREEMM",
+      "language": "spanish",
+      "type": "external",
+      "productTemplatesPath": "C:\\GraphicFiles\\Registros",
+      "customerLogosPath": "C:\\GraphicFiles\\LOGOS_FROM_DISTRIBUTORS",
+      "disclaimersPath": "C:\\GraphicFiles\\DISCLAIMERS",
+      "isAdmin": false
+    }
+  ]
+}

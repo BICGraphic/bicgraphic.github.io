@@ -1,0 +1,247 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 25 de febrero de 2020
+//*********************************************************************************
+
+#include "illustratordocument_class.jsxinc"
+#include "printingoptions_class.jsxinc"
+#include "date_class.jsxinc"
+"use strict";
+
+/**
+ * Clase para crear una separación de colores en función de la técnica de impresión
+ * @param {Array}            symbolItems      Colección de objetos SymbolItem para crear la separación de colores
+ * @param {OrderInformation} orderInformation La información sobre el pedido
+ */
+function ColourSeparation(symbolItems, orderInformation) {
+    this.symbolItems = symbolItems;
+    this.orderInformation = orderInformation;
+    // Referencia a un objeto IllustratorDocument con la plantilla del producto
+    this.productTemplateDoc = null;
+    // Colección de grupos dentro del archivo productTemplateDoc
+    this.productTemplateGroups = [];
+    // Colección de archivos PS generados según el número de colores del diseño
+    this.PSfiles = [];
+}
+
+/**
+ * Crea una separación de colores según la técnica de impresión
+ * @param {object} printingTechniques Las técnicas de impresión en las que se realizará separación de colores
+ */
+ColourSeparation.prototype.createColourSeparation = function (printingTechniques) {
+    var that = this;
+
+    // Si no hay ningún elemento para crear la separación de colores, finaliza la función
+    if (this.symbolItems.length == 0) return;
+
+    // Abrimos la plantilla del producto
+    OpenProductTemplate(that);
+
+    // Si no se ha podido abrir la plantilla del producto, finaliza la función
+    if (this.productTemplateDoc == null) return;
+
+    // Según la técnica de impresión, ejecuta una serie de opciones. Hay una en común que es la de colocar cada símbolo
+    // del PDF del pedido en la plantilla del producto
+    for (var i = 0; i < this.symbolItems.length; i++) {
+        switch (this.symbolItems[i].technique) {
+            case printingTechniques.SCREEN_PRINTING:
+                CommonProcess(this.symbolItems[i], that);
+                break;
+            case printingTechniques.PAD_PRINTING:
+                CommonProcess(this.symbolItems[i], that);
+                break;
+        }
+    }
+
+    // Crea los archivos PS según el número de grupos guardados en la colección productTemplateGroups
+    for (var k = 0; k < this.productTemplateGroups.length; k++) {
+        CreatePSFiles(this.productTemplateGroups[k], this);
+    }
+
+    // Cerramos la plantilla del producto
+    this.productTemplateDoc.closeDocument();
+};
+
+/**
+ * Abre la plantilla del producto de producción con la información para crear la separación de colores
+ * @param {object} that El objeto global this de esta clase
+ */
+function OpenProductTemplate(that) {
+    // Creamos el objeto File y comprobamos que el archivo existe, de lo contrario, finaliza la función
+    var templateFile = new File(that.orderInformation.ProductTemplateFolder + "\\" + that.orderInformation.ProductCode + ".ai");
+    if (!templateFile.exists) return;
+
+    // Abriremos el documento que corresponde a la plantilla del producto
+    that.productTemplateDoc = new IllustratorDocument();
+    that.productTemplateDoc.openDocument(templateFile);
+}
+
+/**
+ * Función para crear un proceso común a las técnicas de impresión
+ * @param {SymbolItem} symbolItem Un objeto SymbolItem de Illustrator
+ * @param {object}     that       El objeto global this de esta clase
+ */
+function CommonProcess(symbolItem, that) {
+    try{
+        // Localizamos el grupo según la técnica y posición en el producto
+        var productTemplateGroup = that.productTemplateDoc.docRef.pageItems.getByName(symbolItem.symbol.name);
+
+        // Cambiar la propiedad symbol de cada objeto SymbolItem en el documento
+        for (var j = 0; j < that.productTemplateDoc.docRef.symbolItems.length; j++) {
+            if (that.productTemplateDoc.docRef.symbolItems[j].symbol.name == symbolItem.symbol.name)
+                that.productTemplateDoc.docRef.symbolItems[j].symbol = symbolItem.symbol;
+        }
+        
+        that.productTemplateGroups.push(productTemplateGroup);
+    }
+    catch(e){
+        if (app.userInteractionLevel == UserInteractionLevel.DISPLAYALERTS){
+            alert("Symbol name is wrong: '" + symbolItem.symbol.name + "'", "WRONG SYMBOL NAME", true);
+        }
+    }
+}
+
+/**
+ * Crea los archivos Postscript necesarios según el número de colores que tenga el diseño
+ * @param {GroupItem} productTemplateGroup Un objeto GroupItem de Illustrator que contiene el diseño, el texto y las cruces
+ * @param {object}    that                 El objeto global this de esta clase
+ */
+function CreatePSFiles(productTemplateGroup, that) {
+    // Creamos un documento nuevo con el tamaño igual que el grupo que contiene el diseño, el texto y las cruces y con un nombre determinado
+    var newDocument = new IllustratorDocument();
+    var documentName = "colourSeparation";
+    newDocument.addNewDocument(DocumentColorSpace.CMYK, productTemplateGroup.width, productTemplateGroup.height, documentName);
+    
+    // Creamos un duplicado del grupo dentro del documento
+    var newGroup = productTemplateGroup.duplicate(newDocument.docRef);
+
+    // Seleccionamos el grupo y lo desplazamos al centro del documento
+    newGroup.selected = true;
+    newDocument.getSelection();
+    newDocument.alignArtwork();
+
+    // Averiguamos el número de tintas que tiene el diseño
+    newDocument.getPrintingColours();
+    
+    // Si el número de tintas es 0 salimos de la función
+    if (newDocument.inks.length == 0) {
+        newDocument.closeDocument();
+        return;
+    }
+
+    // Definimos las opciones de impresión
+    var printingOpt = new PrintingOptions(newDocument);
+    
+    // Fecha actual
+    var currentDate = new Date().toShortTime();
+    
+    // Carpeta Documentos del usuario actual
+    var myDocumentsFolder = Folder.myDocuments;
+    
+    // Eliminamos los símbolos que tiene el documento
+    /*
+    var j = 0;
+
+    while (newDocument.docRef.symbolItems.length > 0) {
+        j = newDocument.docRef.symbolItems.length;
+        for (var i = 0; i < j; i++) {
+            newDocument.docRef.symbolItems[i].symbol.remove();
+        }
+    }
+    */
+    var pdfSeparationFile;
+    var pdfSeparationFileRenamed;
+
+    // Creamos los archivos PS según el número de tintas
+    for (var p = 0; p < newDocument.inks.length; p++) {
+        // Activamos sólo la tinta actual, las demás las desactivamos
+        printingOpt.enableInk(newDocument.inks[p]);
+
+        // Imprimimos finalmente el archivo
+        printingOpt.printFile();
+        
+        pdfSeparationFile = new File(myDocumentsFolder + "\\" + documentName + ".pdf");
+        
+        // Mientras el archivo no exista, esperaremos y aseguramos que ha pasado 1 segundo desde la última escrutura
+        var mdf;
+        var ara;
+        var dif = 0;
+        while (!pdfSeparationFile.exists || dif < 1000) {
+            $.sleep(100);
+            if (!pdfSeparationFile.exists) dif = 0;
+            else {
+                mdf = pdfSeparationFile.modified.valueOf();
+                ara = Date.now().valueOf();
+                dif = ara - mdf;
+            }
+        }
+        // Establecemos el nombre del archivo renombrado
+        pdfSeparationFileRenamed = documentName + "_" + newDocument.inks[p].name + "-" + currentDate + "-" + p.toString() + ".pdf";
+        
+        // Renombramos el archivo creado
+        // pdfSeparationFile.rename(pdfSeparationFileRenamed);
+        pdfSeparationFile.copy(myDocumentsFolder + "\\" + pdfSeparationFileRenamed);
+        pdfSeparationFile.remove();
+
+        // Creamos un nuevo objeto PDFclass y lo añadimos a la colección PSfiles
+        that.PSfiles.push(new PDFclass(new File(myDocumentsFolder + "\\" + pdfSeparationFileRenamed), newDocument.inks[p], productTemplateGroup.name));
+
+        // Esperamos 1'5 segundos antes de crear el siguiente archivo
+        $.sleep(1500);
+
+        // Liberamos el contenido de las variables
+        pdfSeparationFile = null;
+        pdfSeparationFileRenamed = null;
+    }
+
+    // Cerramos el documento nuevo creado
+    newDocument.closeDocument();
+}
+
+/**
+ * Cambia el color de relleno de un texto
+ * @param {GroupItem}           group        Un objeto GroupItem de Illustrator que contiene el diseño, el texto y las cruces
+ * @param {string}              tagName      El nombre del texto a localizar
+ * @param {InkObject}           colourObject El objeto con la información sobre una tinta de impresión
+ * @param {IllustratorDocument} illDoc       El documento Illustrator
+ */
+function ChangeFillColour(group, tagName, colourObject, illDoc) {
+    var n;
+
+    for (n = 0; n < group.textFrames.length; n++) {
+        if (group.textFrames[n].contents.substr(0, tagName.length) == tagName) {
+            colourObject.getSpotColor(illDoc);
+            group.textFrames[0].textRange.fillColor = colourObject.spotColor;
+            break;
+        }
+    }
+}
+
+/**
+ * Busca un texto determinado en un grupo y sustituye su contenido por el nuevo
+ * @param {GroupItem} productTemplateGroup Un objeto GroupItem de Illustrator que contiene el diseño, el texto y las cruces
+ * @param {string} tagName                 El nombre del texto a localizar
+ * @param {string} newInfo                 La información nueva que se añadirá
+ */
+function ReplaceTextContents(group, tagName, newInfo) {
+    var m;
+
+    for (m = 0; m < group.textFrames.length; m++) {
+        if (group.textFrames[m].contents.substr(0, tagName.length) == tagName) {
+            group.textFrames[m].contents = newInfo;
+            break;
+        }
+    }
+}
+
+/**
+ * Define una clase para los archivos PDF
+ * @param {File}      file          El archivo con extensión PDF
+ * @param {InkObject} ink           El objeto con la información sobre una tinta de impresión
+ * @param {string}    filmName      El nombre del fotolito que corresponde a la técnica de impresión + area de impresión
+ */
+function PDFclass(file, ink, filmName) {
+    this.file = file;
+    this.ink = ink;
+    this.filmName = filmName;
+}

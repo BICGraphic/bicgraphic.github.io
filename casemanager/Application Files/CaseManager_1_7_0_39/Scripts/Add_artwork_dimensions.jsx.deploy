@@ -1,0 +1,52 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 11 de febrero de 2020
+//*********************************************************************************
+
+#target "illustrator"
+#include "./includes/illustratordocument_class.jsxinc"
+#include "./includes/exception_class.jsxinc"
+"use strict";
+
+try {    
+    // Referencia al documento Illustrator actual
+    var currentDoc = new IllustratorDocument();
+    currentDoc.getActiveDocument();
+    
+    // Obtenemos la selección en el documento
+    currentDoc.getSelection();
+    
+    // Averiguamos el tamaño del logo seleccionado
+    var artworkDimension = [(currentDoc.selRef.visibleBounds[2] - currentDoc.selRef.visibleBounds[0]), (currentDoc.selRef.visibleBounds[1] - currentDoc.selRef.visibleBounds[3])];
+
+    // Creamos un texto donde añadiremos el tamaño convertido a milímetros
+    var textItem = currentDoc.docRef.textFrames.add();
+    textItem.contents = PixelToMilimeters(artworkDimension[0]) + " x " + PixelToMilimeters(artworkDimension[1]) + " mm";
+    textItem.textRange.characterAttributes.size = 9;
+    textItem.textRange.paragraphAttributes.justification = Justification.CENTER;
+    
+    // Giramos y trasladamos el texto justo al lado del logo seleccionado
+    textItem.rotate(90);
+    textItem.left = currentDoc.selRef.left - textItem.width - 25;
+    textItem.top = currentDoc.selRef.top - (currentDoc.selRef.height / 2) + (textItem.height / 2);
+    
+} catch (err) {
+    if (err instanceof CustomException) {
+        err.show("spanish", "ERROR", true);
+	} else {
+        alert(err.message + "\nLine: " + err.line, "UNKNOWN ERROR", true);
+	}
+}
+
+/**
+ * Convierte un valor de pixels a milímetros
+ * @param   {number} value El valor en píxeles
+ * @returns {number} Devuelve la conversión a milímetros con 1 decimal
+ */
+function PixelToMilimeters(value){
+    var size = new UnitValue (value, "px");
+    size.baseUnit = UnitValue (1/72, "in");
+    size.convert ("mm");
+
+    return (size.value.toFixed(1));
+}

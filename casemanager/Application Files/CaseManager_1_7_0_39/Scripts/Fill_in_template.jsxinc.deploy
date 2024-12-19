@@ -1,0 +1,148 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 9 de enero de 2020
+//*********************************************************************************
+
+#target "illustrator"
+#include "./includes/savedocumentoptions_class.jsxinc"
+//#include "./includes/graphicdesigner_class.jsxinc"
+#include "./includes/illustratordocument_class.jsxinc"
+#include "./includes/exception_class.jsxinc"
+#include "./includes/distributorlogo_class.jsxinc"
+#include "./includes/disclaimer_class.jsxinc"
+#include "./includes/date_class.jsxinc"
+#include "./includes/json.jsxinc"
+#include "./includes/producttemplate_class.jsxinc"
+"use strict";
+
+Array.prototype.filter = function(callback, thisArg) {
+    var res = [];
+    for (var i = 0; i < this.length; i++) {
+        if (callback.call(thisArg, this[i], i, this)) {
+            res.push(this[i]);
+        }
+    }
+    return res;
+};
+
+// Función para capturar los argumentos
+(function (args) {
+    var orderInformation = null;
+//    orderInformation = JSON.parse('{"DocumentTemplate":"TEMPLATE_BGE_standard.ai","CaseFolder":{"OriginalPath":"C:\\\\Users\\\\jpablos\\\\OneDrive - BIC\\\\Desktop\\\\00402635","FullPath":"C:\\\\Users\\\\jpablos\\\\OneDrive - BIC\\\\Desktop\\\\00402635"},"SubcaseFolder":{"OriginalPath":"C:\\\\Users\\\\jpablos\\\\OneDrive - BIC\\\\Desktop\\\\00402635\\\\OriginalFiles","FullPath":"C:\\\\Users\\\\jpablos\\\\OneDrive - BIC\\\\Desktop\\\\00402635\\\\OriginalFiles"},"FinalArtworkFolder":{"OriginalPath":"C:\\\\Users\\\\jpablos\\\\OneDrive - BIC\\\\Desktop\\\\00402635\\\\FinalArtwork","FullPath":"C:\\\\Users\\\\jpablos\\\\OneDrive - BIC\\\\Desktop\\\\00402635\\\\FinalArtwork"},"GraphicDesigner":{"username":"jpablos","name":"Jordi","shortName":"JDP","language":"spanish","type":"external","productTemplatesPath":"C:\\\\GraphicFiles\\\\Registros","customerLogosPath":"C:\\\\GraphicFiles\\\\LOGOS_FROM_DISTRIBUTORS","disclaimersPath":"C:\\\\GraphicFiles\\\\DISCLAIMERS","isAdmin":true},"NewQuoteNumber":"Q-405693","NewQuoteLineItemNumber":13,"Quantity":250,"ProductCode":"3460001100","Root":"1100","ProductName":"BIC® 4 Colours ballpen","SubSubFamily":"Ballpens","CaseNumber":"00402635","GraphicJobId":"500So00000CrMhqIAF","PreviousCaseNumber":"00402634","CaseComments":[],"CaseAttachments":[],"FinalArtworkFileName":"00402635.pdf","FinalArtworkUrl":"https://api.everisbigcontent.com/edms/rest/v1/links/XbaLkJ2UXy0Hh0VNaXOJMWTWpYKdTj4xvaJ4SUvpw-mqQuP4M4Q_sXiMz2rCMGJa6OVdHJ7VaRpPA3Us1tRmXYyltlF0OlAvua0MISFOLLJuKAOYlsWKX5ueCksBTxLL_gNgcmCWwl2vYOQoZw-951u_X1uP7hl-HZR-IM5vEQE=","RelatedCases":5,"RelatedCaseNumbers":["00402634","00402635","00402636","00402637","00402638"],"ProductConfiguration":[{"Id":"01t1n00000EQqvjAAD","Name":"4 Colours ballpen LP Red_UP White_RI White","ProductCode":"3469008040","ProductType":"Purchased items – INTERCO BIC Product","ComponentType":"Colours","ColourCatalogueCode":"01/03","Colour":"White/red","RGBColour":"FFFFFF;FF4444","DefaultPantone":"185 c","Description":".","Pantone":null}],"ProductTemplate":null,"PreviousQuoteNumber":null,"PreviousQuoteLineItemNumber":0,"PrintingInformation":[{"PrintingArea":"1100 - Barrel 360 36  X 62 mm  - DT","PrintedComponent":"Barrel","PrintPosition":"Full","PrintMethod":"Digital Transfer","SpecialOperations":[],"NumberOfColours":0,"PrintColours":[],"Original":{"FileId":"0680700000IBnk1AAD","Name":"00151884.pdf","Url":"https://api.everisbigcontent.com/edms/rest/v1/links/DwjM2uz1rTm1GCctqX7DoFjJrustTY9luDfXG57RN23u9Sm8LzvsXMNRDLdte82_0l8nqphcZqS-WQq5QgQ-_-Ne9GP40hbXrt9wvJ1Pwh9fxEtPX-VM2BTEntLz0u_mpFeB5LYa-UYPe44rDwkUvO__tTZNazfxw6amo7NGgBM="},"Comments":null,"Pantone":null}],"CustomerAccountNumber":"346100","CustomerLanguage":"French","CustomerClass":"M: FRANCE SUB","CustomerCare":{"Alias":"jsmulder","FirstName":"Jolanda","LastName":"Smulders","Name":"Jolanda Smulders","Email":"bge.csintercompany@bicworld.com","Username":"jolanda.smulders@bicworld.com"},"OrderClass":"Exact Repeat Sales Order","CustomerOwner":"BGE","ComplaintId":"","ComplaintNumber":"","CreatedBy":"Jolanda Smulders","CreatedDate":"2024-09-24T14:15:15+02:00","LastModifiedBy":"Jolanda Smulders","LastModifiedDate":"2024-09-26T15:19:59+02:00","Origin":"CS","CaseStatus":"Approved","ArtworkApprovalRequiredByCustomer":true}' );
+    if (args && args.length == 1) {
+        orderInformation = JSON.parse(args[0]);
+    }
+    
+    return (run(orderInformation));
+})(arguments);
+//})();
+
+/**
+ * Función principal del script
+ * @throws {CustomException} Información sobre la excepción
+ * @param   {object} orderData Objeto con la información del pedido
+ * @returns {string} Devuelve el resultado de la ejecución
+ */
+function run(orderData) {
+    try {
+        // Referencia a la información sobre el usuario/diseñador actual
+        //var graphicDesigner = new GraphicDesigner();
+        //graphicDesigner.getCurrentGraphicDesigner();
+
+        // Referencia al documento Illustrator actual
+        var currentDoc = new IllustratorDocument();
+        currentDoc.getActiveDocument();
+        
+        // Comprobamos que el documento Illustrator inicial es el correcto
+        if (currentDoc.docRef.name != orderData.DocumentTemplate) {
+            throw new CustomException("La plantilla no es correcta, debe ser '" + orderData.DocumentTemplate + "'", "The template document is wrong, must be '" + orderData.DocumentTemplate + "'");
+        }
+        
+        // Construimos el número de pedido definitivo que se mostrará en el PDF
+        var realOrderNumber = orderData.NewQuoteNumber + "-" + orderData.NewQuoteLineItemNumber + "(" + orderData.CaseNumber + ")";
+
+        // Creamos una lista de las técnicas de impresión usadas en el pedido
+        var printingTechniques = "";
+        for (var i = 0; i < orderData.PrintingInformation.length; i++) {
+            if (i != 0) printingTechniques += ", ";
+            printingTechniques += orderData.PrintingInformation[i].PrintMethod + " (" + orderData.PrintingInformation[i].PrintedComponent + ")";
+        }
+        
+        // Añadimos al documento la información del pedido
+        currentDoc.addorderData(realOrderNumber, (orderData.Root + " " + orderData.ProductName), orderData.GraphicDesigner.shortName, printingTechniques);
+        
+        // Añadimos el logo del distribuidor, si tiene un archivo asociado, de lo contrario no añadirá nada
+        var distributorLogo = new DistributorLogo(orderData.CustomerAccountNumber, currentDoc, orderData.GraphicDesigner);
+        distributorLogo.addDistributorLogo();
+        
+        // Eliminamos el disclaimer si lo hubiese
+        Disclaimer.removeDisclaimer(currentDoc);
+
+        // Añadimos el disclaimer en caso de haberlo
+        // Añadimos el disclaimer del root
+        disclaimer = new Disclaimer(orderData.Root, orderData.CustomerLanguage || "English", currentDoc, orderData.GraphicDesigner);
+        disclaimer.addDisclaimer();
+        // componentes
+        // Para cada producto de la configuración, intentamos añadir el disclaimer correspondiente
+        for (var i = 0; i < orderData.ProductConfiguration.length; i++) {
+            var disclaimer = new Disclaimer(orderData.ProductConfiguration[i].ProductCode, orderData.CustomerLanguage || "English", currentDoc, orderData.GraphicDesigner);
+            disclaimer.addDisclaimer();
+        }
+
+        // Eliminamos cualquier selección en el documento
+        app.selection = null;
+
+        // Guardamos el documento actual con el formato PDF estandard
+        var locationFile = new File(orderData.CaseFolder.FullPath + "\\" + orderData.CaseNumber + ".pdf");
+        currentDoc.saveDocumentAsPDF(locationFile, new SaveDocumentOptions().pdfOptions(true));
+        
+        // Referencia a la plantila del producto
+        var templateFile;
+        var component;
+        // 1. Intentamos con el componente que sea ComponentType Colours
+        var colorComponents = orderData.ProductConfiguration.filter(function(item) {
+            return item.ComponentType == "Colours" && (item.ProductType === 'Phantom component' || item.ProductType === 'Component');
+        });
+        if (colorComponents.length === 1) {
+            component = colorComponents[0];
+            templateFile = new File(orderData.GraphicDesigner.productTemplatesPath + "\\" + orderData.Root + "-" + component.ProductCode + ".ai");
+        }
+        if (!component || !templateFile.exists) {
+            // 2. Intentamos con el Root
+            templateFile = new File(orderData.GraphicDesigner.productTemplatesPath + "\\" + orderData.Root + ".ai");
+        }
+        var productTemplate = new ProductTemplate(templateFile, orderData.ProductConfiguration, orderData.GraphicDesigner);
+        
+        // Abriremos el documento de la plantilla del producto
+        productTemplate.openProductTemplate();
+                
+        // Coloreamos el producto según su configuración
+        productTemplate.colourTheProduct();
+        
+        // Añadimos la información sobre el acabado de la etiqueta (en el caso que contenga esa información)
+        productTemplate.addFinishInformation(orderData.PrintingInformation);
+
+        // Intentamos copiar el producto de la plantilla al documento actual
+        var virtualViewLayer = currentDoc.getLayer("VIRTUAL_VIEW");
+        var productGroupItem = productTemplate.copyProductToDocument(orderData, currentDoc, virtualViewLayer);
+        if (productGroupItem !== null && productGroupItem !== undefined) {
+            app.activeDocument = currentDoc.docRef
+            productGroupItem.left = currentDoc.docRef.artboards[0].artboardRect[0];
+            productGroupItem.top = currentDoc.docRef.artboards[0].artboardRect[1];
+        }
+        return "OK";
+    } catch (err) {
+        if (err instanceof CustomException) {
+            switch (orderData.GraphicDesigner.language) {
+                case "spanish":
+                    return err.spanishMsg;
+                    break;
+                case "english":
+                    return err.englishMsg;
+                    break;
+            }
+        } else {
+            return err.toString();
+        }
+    }
+}

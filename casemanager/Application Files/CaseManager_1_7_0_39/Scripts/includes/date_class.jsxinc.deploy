@@ -1,0 +1,27 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 3 de abril de 2018
+//*********************************************************************************
+
+"use strict";
+
+/**
+ * Separador de fecha
+ */
+Date.prototype.separator = "-";
+
+/**
+ * Obtiene un formato de fecha compuesto por la hora, los minutos y los segundos actuales
+ * @returns {string} El texto con el formato requerido
+ */
+Date.prototype.toShortTime = function () {
+    return (this.getHours() + this.separator + this.getMinutes() + this.separator + this.getSeconds());
+};
+
+/**
+ * Obtiene un formato de fecha compuesto por el dia, el mes y el año
+ * @returns {string} El texto con el formato requerido
+ */
+Date.prototype.toShortDate = function () {
+    return (this.getDate() + this.separator + (this.getMonth() + 1) + this.separator + this.getFullYear());
+};

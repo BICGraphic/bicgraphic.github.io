@@ -1,0 +1,34 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 26 de junio de 2018
+//*********************************************************************************
+
+#include "json.jsxinc"
+"use strict";
+
+/**
+ * Clase para leer el contenido de un archivo JSON
+ */
+function JSONReader() {
+    //this.file = file;
+}
+
+/**
+ * Lee el contenido de un archivo en formato JSON
+ * @param   {File}   file El archivo JSON de tipo File
+ * @returns {object} Devuelve el contenido del archivo como un objeto
+ */
+JSONReader.prototype.getJson = function (file) {
+    // Contenido del archivo
+    var fileContent = "";
+try{
+    file.open("r");
+} catch (err){
+    throw new Error("Error opening file " + file + ". " + err.message);
+}
+    
+    fileContent = file.read();
+    file.close();
+
+    return (JSON.parse(fileContent));
+}

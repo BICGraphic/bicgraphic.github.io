@@ -1,0 +1,37 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 12 de marzo de 2018
+//*********************************************************************************
+"use strict";
+
+
+/**
+ * Clase con información sobre la excepción creada
+ * @param {string} spanishMsg El mensaje con la excepción en español
+ * @param {string} englishMsg El mensaje con la excepción en inglés
+ */
+function CustomException(spanishMsg, englishMsg) {
+    this.spanishMsg = spanishMsg;
+    this.englishMsg = englishMsg;
+    this.type = "customException";
+}
+
+/**
+ * Muestra un mensaje con la excepción lanzada
+ * @param {string}  language El idioma del mensaje
+ * @param {string}  title    El título del cuadro de diálogo
+ * @param {boolean} isError  Determina si se trata de un error o de información
+ */
+CustomException.prototype.show = function (language, title, isError) {
+    switch (language) {
+        case "spanish":
+            alert(this.spanishMsg, "INFORMATION", false);
+            break;
+        case "english":
+            alert(this.englishMsg, "INFORMATION", false);
+            break;
+        default:
+            alert(this.englishMsg, "INFORMATION", false);
+            break;
+    }
+};
