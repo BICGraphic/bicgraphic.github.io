@@ -1,0 +1,9 @@
+{
+  "open_product_template_script": "Open_product_template.jsxinc",
+  "fill_in_template_script": "Fill_in_template.jsxinc",
+  "create_colour_separation_script": "Create_colour_separation.jsxinc",
+  "printing_techniques_file": "printingTechniques.json",
+  "bic_printing_colours_file": "BIC_printing_colours.json",
+  "add_artwork_dimensions": "Add_artwork_dimensions.jsx",
+  "add_printing_colours": "Add_printing_colours.jsx"
+}
