@@ -1,0 +1,523 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 29 de octubre de 2020
+//*********************************************************************************
+
+#target "illustrator"
+#include "./includes/illustratordocument_class.jsxinc"
+#include "./includes/symbolobject_class.jsxinc"
+#include "./includes/colourseparation_class.jsxinc"
+#include "./includes/savedocumentoptions_class.jsxinc"
+#include "./includes/file_class.jsxinc"
+#include "./includes/json.jsxinc"
+#include "./includes/scriptresult_class.jsxinc"
+#include "./includes/date_class.jsxinc"
+"use strict";
+
+
+/**
+ * El método determina si una cadena empieza con los carácteres proporcionados
+ * @param {string} searchString La cadena a buscar
+ * @param {number} position Opcional. Por defecto valor 0. Posición de la búsqueda dentro de la cadena
+ * @returns {boolean} Devuelve True si la cadena empieza con los carácteres, False en caso contrario
+ */
+String.prototype.startsWith = function (searchString, position) {
+    position = position || 0;
+    return this.indexOf(searchString, position) === position;
+};
+
+/**
+ * El método determina si una cadena de texto puede ser encontrada dentro de otra cadena de texto, retornando true o false según corresponda.
+ * @param {string} search Una cadena a buscar en el texto
+ * @param {number} start Opcional. La posición dentro de la cadena en la cual empieza la búsqueda del search. Por defecto este valor es 0
+ * @returns {boolean} Devuelve True si la cadena contiene el texto proporcionado, False en caso contrario
+ */
+String.prototype.includes = function (search, start) {
+    'use strict';
+    if (typeof start !== 'number') {
+      start = 0;
+    }
+    
+    if (start + search.length > this.length) {
+      return false;
+    } else {
+      return this.indexOf(search, start) !== -1;
+    }
+};
+
+/**
+ * El método elimina carácteres extraños en una cadena
+ * @returns {string} Devuelve una nueva cadena con los carácteres eliminados
+ */
+String.prototype.deleteStrangeCharacters = function () {
+    if (this.charCodeAt(this.length - 1) == 13) {
+        return this.slice(0, this.length - 1);
+    }
+
+    return this;
+}
+
+/**
+ * Añade los fotolitos creados dentro de un documento
+ * @param {IllustratorDocument} manufacturingDocument El documento Illustrator donde se colocarán los fotolitos
+ * @param {ColourSeparation}    colourSeparation      Un objeto que contiene la separación de colores en archivos
+ * @param {Array}               oDefinition           Colección de objetos ObjectDefinition
+ */
+function AddFilmsToDocument(manufacturingDocument, colourSeparation, oDefinition) {
+    var i;
+    // Nombre de la capa donde se colocarán los fotolitos
+    var filmsLayerName = "films";
+    // Referencia a la capa del documento donde se colocarán los fotolitos
+    var filmsLayer;
+
+    filmsLayer = manufacturingDocument.getLayer(filmsLayerName);
+    if (filmsLayer == null) filmsLayer = manufacturingDocument.addLayer(filmsLayerName);
+
+    // Definimos las opciones de apertura de un PDF
+    var pdfOpenOptions = preferences.PDFFileOptions;
+    app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+
+    // Abrimos cada archivo creado, lo copiamos al documento, le añadimos la información del pedido y del color de marcado y le asignamos un nombre
+    var psDocument;
+    var groupFilm;
+    for (i = 0; i < colourSeparation.PSfiles.length; i++) {
+        psDocument = new IllustratorDocument();
+        pdfOpenOptions.pageToOpen = 1;
+        psDocument.openDocument(colourSeparation.PSfiles[i].file);
+        if (!psDocument.docRef.selectObjectsOnActiveArtboard()) continue;
+        psDocument.getSelection();
+        groupFilm = psDocument.selRef.duplicate(filmsLayer);
+        groupFilm.name = colourSeparation.PSfiles[i].filmName + "_" + (i + 1).toString();
+
+        // Añadimos la información al objeto del resultado del script
+        oDefinition.push(new ObjectDefinition(groupFilm.name, colourSeparation.PSfiles[i].ink.name));
+
+        // Cerramos el archivo
+        psDocument.closeDocument();
+
+        // Añadimos la información al fotolito
+        AddFilmInformation(colourSeparation.orderInformation, colourSeparation.PSfiles[i].ink.name, groupFilm);
+
+        // Liberamos las variables
+        psDocument = null;
+        groupFilm = null;
+    }
+
+    switch (colourSeparation.orderInformation.DesignerMode) {
+        case true:
+            TranslateItemsWithoutArtboard(filmsLayer);
+            break;
+        case false:
+            TranslateItemsWithArtboard(filmsLayer);
+            break;
+    }
+}
+
+/**
+ * Añade información sobre el número del pedido y el color de marcado a un fotolito
+ * @param {object}    oInformation Un objeto de tipo orderInformation
+ * @param {string}    imprintCol   El color de marcado
+ * @param {GroupItem} filmObject   El objeto "fotolito" donde se le añadirá la información
+ */
+function AddFilmInformation(oInformation, imprintCol, filmObject) {
+    // Tamaño del texto
+    var fontSize = 9.0;
+    // Distancia entre el borde del objeto y el texto
+    var offset = 5.0;
+    // Texto a incluir antes del color de impresión
+    var imprintColourTag = "COLOUR: ";
+    // Texto a incluir antes del número de pedido
+    var orderNumberTag;
+    // El número de pedido a incluir en el fotolito
+    var orderNum = oInformation.WorkOrderNumber;
+
+    // Definimos el texto a incluir antes del número de pedido
+    switch (oInformation.DesignerMode) {
+        case true:
+            orderNumberTag = "ORDER: ";
+            break;
+        case false:
+            orderNumberTag = "OF: ";
+            break;
+    }
+
+    // Creamos el texto del color de impresión, lo añadimos al objeto y lo centramos en la parte superior derecha
+    var imprintColourText = filmObject.parent.textFrames.add();
+    imprintColourText.contents = imprintColourTag + imprintCol;
+    imprintColourText.textRange.characterAttributes.size = fontSize;
+    imprintColourText.paragraphs[0].justification = Justification.RIGHT;
+    imprintColourText.left = filmObject.left + filmObject.width - imprintColourText.width - offset;
+    imprintColourText.top = filmObject.top - offset;
+    imprintColourText.move(filmObject, ElementPlacement.PLACEATBEGINNING);
+
+    // Creamos el texto del número de pedido, lo añadimos al objeto y lo centramos en la parte superior izquierda
+    var orderNumberText = filmObject.parent.textFrames.add();
+    orderNumberText.contents = orderNumberTag + orderNum;
+    orderNumberText.textRange.characterAttributes.size = fontSize;
+    orderNumberText.paragraphs[0].justification = Justification.LEFT;
+    orderNumberText.left = filmObject.left + offset;
+    orderNumberText.top = filmObject.top - offset;
+    orderNumberText.move(filmObject, ElementPlacement.PLACEATBEGINNING);
+}
+
+
+/**
+ * Añade la información necesaria al documento de preimpresión
+ * @param {object} preprintingDoc Objeto de tipo IllustratorDocument
+ * @param {object} oInformation   Un objeto de tipo orderInformation
+ */
+function AddTemplateInformation(preprintingDoc, oInformation) {
+    try {
+        var oNumber = preprintingDoc.docRef.textFrames.getByName("OrderNumber");
+        oNumber.contents += oInformation.WorkOrderNumber;
+        var oDate = preprintingDoc.docRef.textFrames.getByName("Date");
+        oDate.contents += new Date().toShortDate();
+    } catch (err) {
+        
+    }
+}
+
+/**
+ * Traslada los items (groupItems) que hay en una capa a un documento
+ * @param {object} layer Un objeto de tipo Layer correspondiente a una capa de Illustrator
+ */
+function TranslateItemsWithArtboard(layer) {
+    // Area del documento donde se pueden colocar objetos
+    var offset = {
+        topOffset: 50.0,
+        leftOffset: 35.0,
+        bottomOffset: -475.0,
+        rightOffset: 770.0,
+        middleOffset: 20
+    };
+    var j;
+    var nextPosition = [];
+    var currentPosition = [];
+    var itemDimensions = [];
+    var currentArtboard = 0;
+
+    for (var j = 0; j < layer.groupItems.length; j++) {
+        switch (j) {
+            case 0:
+                nextPosition = [(layer.parent.artboards[currentArtboard].artboardRect[0] + offset.leftOffset), (layer.parent.artboards[currentArtboard].artboardRect[1] - offset.topOffset)];
+                break;
+            default:
+                if ((nextPosition[0] + layer.groupItems[j].width) > offset.rightOffset) {
+                    nextPosition = [(layer.parent.artboards[currentArtboard].artboardRect[0] + offset.leftOffset), (currentPosition[1] - itemDimensions[1] - offset.middleOffset)];
+                } else {
+                    nextPosition = [(currentPosition[0] + itemDimensions[0] + offset.middleOffset), (currentPosition[1])];
+                }
+                break;
+        }
+
+        layer.groupItems[j].position = nextPosition;
+        currentPosition = layer.groupItems[j].position;
+        itemDimensions = [layer.groupItems[j].width, layer.groupItems[j].height];
+    }
+}
+
+/**
+ * Traslada los items que hay en una capa a una area de trabajo sin documento
+ * @param {object} layer Un objeto de tipo Layer correspondiente a una capa de Illustrator
+ */
+function TranslateItemsWithoutArtboard(layer) {
+    // Posición inicial y distancia entre objetos
+    var offset = {
+        topOffset: layer.parent.artboards[0].artboardRect[1] - layer.parent.height - 100.0,
+        leftOffset: layer.parent.artboards[0].artboardRect[0] - 100.0,
+        middleOffset: 20
+    };
+
+    var currentPosition = [offset.leftOffset, offset.topOffset];
+    var nextPosition;
+
+    for (var j = 0; j < layer.groupItems.length; j++) {
+        layer.groupItems[j].position = currentPosition;
+        nextPosition = layer.groupItems[j].left + layer.groupItems[j].width + offset.middleOffset;
+        currentPosition = [nextPosition, offset.topOffset];
+    }
+}
+
+/**
+ * Borra los archivos generados para la separación de colores
+ * @param {Array} PSfiles Los archivos generados
+ */
+function DeleteColourSeparationFiles(PSfiles) {
+    var m;
+
+    for (m = 0; m < PSfiles.length; m++) {
+        PSfiles[m].file.remove();
+    }
+}
+
+
+/**
+ * Comprueba si ya existe una separación de colores en un documento
+ * @param   {object}  aDocument Objeto de tipo IllustratorDocument
+ * @returns {boolean} True si ya existe una separación de colores en el documento, False si no existe
+ */
+function PreviousColourSeparationExist(aDocument) {
+    // Comprobamos si existe la capa "films", de lo contrario la función finaliza
+    var filmsLayer = aDocument.getLayer("films");
+    if (filmsLayer == null) return false;
+
+    var content = filmsLayer.groupItems.length;
+    if (content > 0)
+        return true
+    else
+        return false;
+}
+
+/**
+ * Busca un texto dentro de un objeto de forma recursiva
+ * @param {object} element Un elemento de tipo PageItem
+ * @param {string} text El texto a buscar
+ * @returns {object} Devuelve el elemento TextFrame encontrado de lo contrario devuelve null
+ */
+function FindText(element, text) {
+    var value = null;
+    for (var c = 0; c < element.pageItems.length; c++) {
+      if (element.pageItems[c].pageItems != undefined) {
+        if (element.pageItems[c].pageItems.length != 0 && value == null) {
+            value = FindText(element.pageItems[c], text);
+            if (value != null) return value;
+        }
+      }
+      if (element.pageItems[c].typename == "TextFrame" && element.pageItems[c].contents.includes(text)) return element.pageItems[c];
+    }
+
+    return value;
+}
+
+/**
+ * Función principal del script
+ * @param {object} orderInformation Objeto que contiene la información del pedido
+ */
+function run(orderInformation) {
+    try {
+        // Definimos el objeto con el resultado del script
+        var scriptResult = new ScriptResult();
+        var oDefinition = [];
+        var csExists;
+
+        // Técnicas de impresión en las que se realizará separación de colores
+        var printingTechniques = {
+            SCREEN_PRINTING: "Screen printing",
+            PAD_PRINTING: "Pad Printing"
+        };
+
+        // Abrimos el archivo del pedido que contiene el diseño a preparar la separación de colores
+        var artworkDocument = new IllustratorDocument();
+        // Obtenemos una referencia a la clase SymbolObject
+        var symbolObjects = new SymbolObject(artworkDocument);
+
+        if (orderInformation.DesignerMode) {
+            //#include "./includes/graphicdesigner_class.jsxinc"
+            #include "./includes/exception_class.jsxinc"
+            // Referencia a la información sobre el usuario/diseñador actual
+            //var graphicDesigner = new GraphicDesigner();
+            //graphicDesigner.getCurrentGraphicDesigner();
+
+            // Establecemos como documento de inicio el documento activo
+            orderInformation.InputFile = app.activeDocument;
+
+            artworkDocument.docRef = orderInformation.InputFile;
+
+            // Establece la propiedad global para mostrar alertas
+            app.userInteractionLevel = UserInteractionLevel.DISPLAYALERTS;
+
+            // Comprobamos que hay objetos seleccionados y de tipo SymbolItem
+            if (artworkDocument.docRef.selection.length == 0)
+                throw new CustomException("No hay ningún diseño seleccionado", "There is no piece of artwork selected");
+            for (var p = 0; p < artworkDocument.docRef.selection.length; p++) {
+                if (artworkDocument.docRef.selection[p].typename != "SymbolItem")
+                    throw new CustomException("Los objetos seleccionados deben ser de tipo 'Símbolo'", "All selected items must be of type 'Symbol'");
+
+                // Añadimos los objetos a la colección de símbolos
+                symbolObjects.addSymbolCollection(artworkDocument.docRef.selection[p], printingTechniques.SCREEN_PRINTING);
+            }
+        } else {
+            // Abrimos el archivo inicial con el diseño
+            artworkDocument.openDocument(new File(orderInformation.InputFile));
+
+            // Establece la propiedad global para no mostrar alertas
+            app.userInteractionLevel = UserInteractionLevel.DONTDISPLAYALERTS;
+
+            // Comprobamos si el documento ya tiene una separación de colores hecha
+            csExists = PreviousColourSeparationExist(artworkDocument);
+
+            // Crearemos objetos SymbolItem en el documento a partir de los símbolos que tiene
+            if (!csExists) symbolObjects.createSymbolItemObjects(printingTechniques);
+        }
+
+        if (!csExists) {
+            // Obtenemos una referencia a la clase ColourSeparation y accedemos al método que crea la separación de colores
+            var colourSeparation = new ColourSeparation(symbolObjects.symbolItemObjects, orderInformation);
+            colourSeparation.createColourSeparation(printingTechniques);
+
+            if (colourSeparation.PSfiles.length == 0) {
+                if (orderInformation.DesignerMode) throw new CustomException("No se ha generado ninguna separación de colores", "No film separation has been made.");
+                else throw "No film separation has been made.";
+            }
+        }
+        
+        if (!orderInformation.DesignerMode) {
+            // Abrimos la plantilla de producción donde se colocarán todos los fotolitos
+            var preprintingDocument = new IllustratorDocument();
+            preprintingDocument.openDocument(new File(orderInformation.PreprintingTemplateFile));
+
+            if (csExists) {
+                var filmsLayerName = "films";
+                var output;
+
+                // Primero comprobamos que el nombre de cada objeto es correcto.
+                // Si es correcto, duplicamos los objetos de la capa films del archivo del pedido al archivo de producción
+                // y añadimos información al objeto oDefinition.
+                // De lo contrario lanzamos una excepción.
+                for (var r = 0; r < artworkDocument.docRef.layers[filmsLayerName].groupItems.length; r++) {
+                    if (artworkDocument.docRef.layers[filmsLayerName].groupItems[r].name == ""){
+                        throw "The objects' name in <" + filmsLayerName + "> layer are not correct";
+                    }
+
+                    output = FindText(artworkDocument.docRef.layers[filmsLayerName].groupItems[r], "COLOUR:");
+                    if (output != null){
+                        oDefinition.push(new ObjectDefinition(artworkDocument.docRef.layers[filmsLayerName].groupItems[r].name, output.contents.substring(8)));
+                        if (oDefinition[oDefinition.length - 1].Technique == null) throw "The objects' name in <" + filmsLayerName + "> layer are not correct";
+                        artworkDocument.docRef.layers[filmsLayerName].groupItems[r].duplicate(preprintingDocument.docRef.layers[filmsLayerName], ElementPlacement.INSIDE);
+                        continue;
+                    }
+
+                    output = FindText(artworkDocument.docRef.layers[filmsLayerName].groupItems[r], "C:");
+                    if (output != null){
+                        oDefinition.push(new ObjectDefinition(artworkDocument.docRef.layers[filmsLayerName].groupItems[r].name, output.contents.substring(3)));
+                        if (oDefinition[oDefinition.length - 1].Technique == null) throw "The objects' name in <" + filmsLayerName + "> layer are not correct";
+                        artworkDocument.docRef.layers[filmsLayerName].groupItems[r].duplicate(preprintingDocument.docRef.layers[filmsLayerName], ElementPlacement.INSIDE);
+                        continue;
+                    }
+
+                    // Lanzamos una excepción si el nombre de los objetos en la capa films no es el esperado
+                    if (output == null) throw "The objects' name in <" + filmsLayerName + "> layer are not correct";
+                }
+
+                // Por cada objeto film en la capa filmsLayerName, buscamos un texto de referencia y cambiamos su número de case
+                // por el número de WorkOrder
+                for (var s = 0; s < preprintingDocument.docRef.layers[filmsLayerName].groupItems.length; s++) {
+                    output = FindText(preprintingDocument.docRef.layers[filmsLayerName].groupItems[s], "ORDER:");
+                    if (output != null) {
+                        output.contents = "OF: " + orderInformation.WorkOrderNumber;
+                        continue;
+                    }
+
+                    output = FindText(preprintingDocument.docRef.layers[filmsLayerName].groupItems[s], "Nº:");
+                    if (output != null) {
+                        output.contents = "OF: " + orderInformation.WorkOrderNumber;
+                        continue;
+                    }
+                }
+
+                // Ordenamos los items de la capa films del archivo de producción
+                TranslateItemsWithArtboard(preprintingDocument.docRef.layers[filmsLayerName]);
+            } else {
+                // Añadimos los fotolitos creados
+                AddFilmsToDocument(preprintingDocument, colourSeparation, oDefinition);
+            }
+            
+            // Eliminamos la selección en el documento
+            preprintingDocument.docRef.selection = null;
+            
+            // Añadimos la información del número de pedido y la fecha al documento de preimpresión
+            AddTemplateInformation(preprintingDocument, orderInformation);
+
+            // Establecemos el nombre del archivo de salida
+            var fileName = orderInformation.WorkOrderNumber + "-" + orderInformation.JDEOrderNumber + "-" + orderInformation.JDELineNumber;
+
+            // Establecemos el archivo de salida
+            var outputFile = new File(orderInformation.OutputFolder + "\\" + fileName + ".ai");
+
+            // Establecemos las opciones de PDF
+            var saveDocumentOptions = new SaveDocumentOptions();
+
+            // Guardamos la plantilla de producción con el nombre final
+            preprintingDocument.saveDocumentAsAI(outputFile, saveDocumentOptions.aiIllustratorOptions());
+
+            // Renombramos el archivo con extensión AI a PDF
+            while (!outputFile.exists) {
+                $.sleep(3000);
+            }
+            outputFile.rename (fileName + ".pdf");
+
+            // Cerramos el archivo de producción y el del pedido
+            preprintingDocument.closeDocument();
+            artworkDocument.closeDocument();
+
+            // Añadimos la información al resultado del script
+            scriptResult.addFileObject(outputFile.fsName, oDefinition);
+
+            // Borramos los archivos de la separación de colores creados
+            if (!csExists) DeleteColourSeparationFiles(colourSeparation.PSfiles);
+            
+            // Añadimos un tiempo de espera
+            $.sleep(2000);
+
+            // Devolvemos un objeto JSON con el resultado del script
+            return scriptResult.result();
+        } else {
+            // Añadimos los fotolitos creados
+            AddFilmsToDocument(artworkDocument, colourSeparation, oDefinition);
+
+            // Borramos los archivos de la separación de colores creados
+            DeleteColourSeparationFiles(colourSeparation.PSfiles);
+            
+            // Borramos la selección en el documento
+            artworkDocument.docRef.selection = null;
+
+            // Devolvemos un simple OK
+            return "OK";
+        }
+    } catch (err) {
+        if (orderInformation.DesignerMode) {
+            if (err instanceof CustomException) {
+                switch (orderInformation.GraphicDesigner.language) {
+                    case "spanish":
+                        alert(err.spanishMsg, "ERROR");
+                        return scriptResult.result(err.spanishMsg);
+                        break;
+                    case "english":
+                        alert(err.englishMsg, "ERROR");
+                        return scriptResult.result(err.englishMsg);
+                        break;
+                }
+            } else {
+                return scriptResult.result(err.toString() + " - Line: " + err.line);
+                //alert(err.message + "\nLine: " + err.line, "UNKNOWN ERROR", true);
+            }
+        } else {
+            if (err instanceof CustomException) {
+                return scriptResult.result(err.englishMsg);
+            }
+            return scriptResult.result(err.toString() + " - Line: " + err.line + " - File name: " + err.fileName);
+        }
+    }
+}
+
+// Función para capturar los argumentos
+(function (args) {
+    var orderInformation = {
+        InputFile: "c:\\Users\\aisuar\\downloads\\00097582-3502020.pdf",
+        PreprintingTemplateFile: "c:\\Users\\aisuar\\OneDrive - BIC\\PROYECTOS\\MACAONE PROJECT\\Manufacturing layout\\PreprintingTemplate.ai",
+        ProductTemplateFolder: "c:\\Users\\aisuar\\OneDrive - BIC\\PROYECTOS\\MACAONE PROJECT\\customer layout\\Registros\\Manufacturing\\Screen-PadPrinting",
+        OutputFolder: "c:\\Users\\aisuar\\Desktop",
+        ProductCode: "2320",
+        JDEOrderNumber: "20018536SO00346",
+        JDELineNumber: "1",
+        WorkOrderNumber: "3502020",
+        DesignerMode: false
+    };
+
+
+    if (args && args.length == 1) {
+        orderInformation = JSON.parse(args[0]);
+    }
+
+    return (run(orderInformation));
+})(arguments);
