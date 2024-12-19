@@ -1,0 +1,86 @@
+//*********************************************************************************
+// Creado por ALBERT ISUAR SOLE para el Departamento Gráfico de Bic Graphic Europe
+// Fecha de última actualización: 13 de marzo de 2019
+//*********************************************************************************
+
+#target "illustrator"
+//#include "./includes/graphicdesigner_class.jsxinc"
+#include "./includes/exception_class.jsxinc"
+#include "./includes/producttemplate_class.jsxinc"
+#include "./includes/json.jsxinc"
+"use strict";
+
+Array.prototype.filter = function(callback, thisArg) {
+    var res = [];
+    for (var i = 0; i < this.length; i++) {
+        if (callback.call(thisArg, this[i], i, this)) {
+            res.push(this[i]);
+        }
+    }
+    return res;
+};
+
+// Función para capturar los argumentos
+(function (args) {
+    if (args && args.length == 1) {
+        var orderInformation = JSON.parse(args[0]);
+    }
+    
+    return (run(orderInformation));
+})(arguments);
+
+/**
+ * Función principal del script
+ * @throws {CustomException} Información sobre la excepción
+ * @param   {object} orderData Objeto con la información del pedido
+ * @returns {string} Devuelve el resultado de la ejecución
+ */
+function run(orderData) {
+    try {
+        // Referencia a la información sobre el usuario/diseñador actual
+        //var graphicDesigner = new GraphicDesigner();
+        //graphicDesigner.getCurrentGraphicDesigner();
+
+        // Referencia a la plantila del producto
+        var templateFile;
+        var component;
+        // 1. Intentamos con el componente que sea ComponentType Colours
+        var colorComponents = orderData.ProductConfiguration.filter(function(item) {
+            return item.ComponentType == "Colours" && (item.ProductType === 'Phantom component' || item.ProductType === 'Component');
+        });
+        if (colorComponents.length === 1) {
+            component = colorComponents[0];
+            templateFile = new File(orderData.GraphicDesigner.productTemplatesPath + "\\" + orderData.Root + "-" + component.ProductCode + ".ai");
+        }
+        if (!component || !templateFile.exists) {
+            // 2. Intentamos con el Root
+            templateFile = new File(orderData.GraphicDesigner.productTemplatesPath + "\\" + orderData.Root + ".ai");
+        }
+        // Referencia a la plantila del producto
+        var productTemplate = new ProductTemplate(templateFile, orderData.ProductConfiguration, orderData.GraphicDesigner);
+        
+        // Abriremos el documento de la plantilla del producto
+        productTemplate.openProductTemplate();
+                
+        // Coloreamos el producto según su configuración
+        productTemplate.colourTheProduct();
+        
+        // Añadimos la información sobre el acabado de la etiqueta (en el caso que contenga esa información)
+        productTemplate.addFinishInformation(orderData.PrintingInformation);
+        
+        return "OK";
+    } catch (err) {
+        if (err instanceof CustomException) {
+            switch (orderData.GraphicDesigner.language) {
+                case "spanish":
+                    return err.spanishMsg;
+                    break;
+                case "english":
+                    return err.englishMsg;
+                    break;
+            }
+        } else {
+            return err.toString();
+        }
+    }
+}
